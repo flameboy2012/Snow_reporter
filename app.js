@@ -41,12 +41,11 @@ function GetReport () {
 
 		if (forecast === null) {
 			forecast = new Forecast(report.weather.snow_report[0]);
-			console.log(forecast.print());
-			// bot.postMessageToChannel("general", forecast.print, params);
+			bot.postMessageToChannel("general", forecast.print, params);
 		} else {
 			if (forecast.compare(report.weather.snow_report[0])) {
 				forecast = new Forecast(report.weather.snow_report[0]);
-				console.log(forecast.print);
+				bot.postMessageToChannel("general", forecast.print, params);
 			}
 		}
 	});
