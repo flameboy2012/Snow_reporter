@@ -11,25 +11,15 @@ var bot = new SlackBot({
 
 var forecast = null;
 
+var params = {
+    icon_emoji: ':snowman:'
+};
+
 bot.on("start", function () {
 
-	var params = {
-        icon_emoji: ':snowman:'
-    };
-
+	getReport();
     setInterval(GetReport, 60000);
 
- //    request("http://www.myweather2.com/developer/weather.ashx?uac=J8AGqmQdGv&uref=697ed4ad-377c-4122-84af-4fa0ddae8dac&output=json", function (err, res, body) {
-	// 	if (err)
-	// 		console.log(err);
-
-	// 	var report = JSON.parse(body);
-
-	// 	forecast = new Forecast(report.weather.snow_report[0]);
-
-	// 	bot.postMessageToChannel("general", message, params);
-
-	// });
 });
 
 function GetReport () {
