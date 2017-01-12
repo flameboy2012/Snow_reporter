@@ -17,7 +17,7 @@ var params = {
 
 bot.on("start", function () {
 
-	getReport();
+	GetReport();
     setInterval(GetReport, 60000);
 
 });
@@ -31,11 +31,11 @@ function GetReport () {
 
 		if (forecast === null) {
 			forecast = new Forecast(report.weather.snow_report[0]);
-			bot.postMessageToChannel("general", forecast.print, params);
+			bot.postMessageToChannel("general", forecast.print(), params);
 		} else {
 			if (forecast.compare(report.weather.snow_report[0])) {
 				forecast = new Forecast(report.weather.snow_report[0]);
-				bot.postMessageToChannel("general", forecast.print, params);
+				bot.postMessageToChannel("general", forecast.print(), params);
 			}
 		}
 	});
