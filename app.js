@@ -1,8 +1,10 @@
 var SlackBot = require("slackbots");
 var request = require("request");
 
+var config = require("./config");
+
 var bot = new SlackBot({
-	token: "xoxb-125411685440-kJEZ13xp2liqVR2zYPHCY5tX",
+	token: config.SlackToken,
 	name: "snow_reporter"
 });
 
