@@ -1,0 +1,16 @@
+[Unit]
+Description=Snow Reporter
+After=network.target
+
+[Service]
+ExecStart=/var/www/snow-reporter/app.js
+Restart=always
+User=nobody
+Group=nobody
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/var/www/snow-reporter
+
+[Install]
+WantedBy=multi-user.target
+
