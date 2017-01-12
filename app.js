@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var SlackBot = require("slackbots");
 var request = require("request");
 var Forecast = require("./models");
