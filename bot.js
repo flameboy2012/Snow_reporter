@@ -13,31 +13,20 @@ function Bot(config) {
     });
 }
 
-Bot.prototype.startBot = function() {
-    this.slack.on("start", function() {
-      sendHello(this);
+function sendHello() {
 
-      setInterval(() => wakeUp(this), this.config.ReportInterval);
-    });
-};
-
-Bot.prototype.stopBot = function() {
-  sendGoodbye(this);
-};
-
-function sendHello(bot) {
-
-  bot.slack.postMessageToChannel("general", "Hello! Snow is back baby!", bot.config.SlackParams);
+  this.slack.postMessageToChannel("general", "Hello! Snow is back baby!", this.config.SlackParams);
 
 }
 
-function sendGoodbye(bot) {
+function sendGoodbye() {
 
 }
 
-function wakeUp(bot) {
+function wakeUp() {
 
-  var forecast = bot.lastForecast;
+  var self = this;
+  var forecast = self.lastForecast;
 
   request("http://www.myweather2.com/developer/weather.ashx?uac=J8AGqmQdGv&uref=697ed4ad-377c-4122-84af-4fa0ddae8dac&output=json", function (err, res, body) {
     if (err)
@@ -47,18 +36,36 @@ function wakeUp(bot) {
 
     if (forecast === null) {
       forecast = new Forecast(report.weather.snow_report[0]);
-      bot.slack.postMessageToChannel("general", forecast.print(), params);
+      self.slack.postMessageToChannel("general", forecast.print(), params);
     } else {
       if (forecast.compare(report.weather.snow_report[0])) {
         forecast = new Forecast(report.weather.snow_report[0]);
-        bot.postMessageToChannel("general", forecast.print(), params);
+        self.slack.postMessageToChannel("general", forecast.print(), params);
       }
     }
 
-    bot.lastForecast = forecast;
+    self.lastForecast = forecast;
   });
 }
 
+Bot.prototype.startBot = function() {
+  console.log("Starting internal slack bot");
+  console.log("%v", this);
+  console.log("%v", this.slack);
 
+  var self = this; //you... YOU..
+
+  this.slack.on("start", function() {
+    console.log("%v", this);
+    console.log("%v", self);
+    console.log("Sending hello message");
+    self.slack.postMessageToChannel("general", "Hello! Snow is back baby!", self.config.SlackParams);
+
+    setInterval(() => wakeUp.call(self), self.config.ReportInterval);
+  });
+};
+Bot.prototype.stopBot = function() {
+
+};
 
 module.exports = Bot;
