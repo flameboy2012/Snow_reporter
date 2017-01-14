@@ -18,8 +18,12 @@ module.exports = {
       throw new Error("No slack token in config");
     }
 
+    if (!('Username' in config)) {
+      config.Username = "snow_reporter";
+    }
+
     if (!('Name' in config)) {
-      config.Name = "snow_reporter";
+      config.Name = "Snow Reporter";
     }
 
     if (!('ReportInterval' in config)) {

@@ -45,10 +45,23 @@ function wakeUp() {
       return;
     }
     console.log("Posting updated forecast");
-    self.slack.postMessageToChannel("general", forecast.print(), self.config.SlackPostParams);
+    self.slack.postMessageToChannel(self.config.SlackChannel, forecast.print(), self.config.SlackPostParams);
 
     self.lastForecast = forecast;
   });
+}
+
+function postMessage(message) {
+  this.slack.postMessageToChannel(this.config.SlackChannel, message, this.config.SlackPostParams);
+}
+
+function handleMessage(data) {
+  if (data.type != "desktop_notification")
+    return;
+
+  if (data.content.toLowerCase().indexOf("weather") > -1) {
+    postMessage.call(this, this.lastForecast.print());
+  }
 }
 
 Bot.prototype.startBot = function() {
@@ -56,10 +69,20 @@ Bot.prototype.startBot = function() {
   var self = this; //you... YOU..
 
   this.slack.on("start", function() {
-    self.slack.postMessageToChannel("general", "Hello! Snow is back baby!", self.config.SlackPostParams);
+
+    self.slackId = self.slack.getUserId(self.config.Username);
+    self.channelId = self.slack.getChannelId(self.config.SlackChannel);
+
+    self.slack.postMessageToChannel(self.config.SlackChannel, "Hello! Snow is back baby!", self.config.SlackPostParams);
 
     console.log("Sleeping for %d", self.config.ReportInterval);
-    setInterval(wakeUp.call, self.config.ReportInterval, self);
+    wakeUp.call(self);
+    setInterval(() => wakeUp.call(self), self.config.ReportInterval);
+  });
+
+
+  this.slack.on("message", function(data) {
+    handleMessage.call(self, data);
   });
 };
 Bot.prototype.stopBot = function() {
