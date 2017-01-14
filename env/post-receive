@@ -1,0 +1,42 @@
+#!/bin/sh
+
+WORK_DIR=/var/www/snow-reporter
+GIT_DIR=/var/repo/snow-reporter.git
+
+RUN_AS_USER=nobody
+RUN_AS_GROUP=nogroup
+
+#stop service
+echo "+ Stopping Service"
+systemctl stop snow-reporter.service
+
+# copy over files
+
+if [ ! -d ${WORK_DIR} ]
+then
+  mkdir -p ${WORK_DIR}
+fi
+
+echo "+ Copying files"
+git --work-tree=${WORK_DIR} --git-dir=${GIT_DIR} checkout -f
+
+echo "+ Configuring environment"
+cd ${WORK_DIR}
+chown -R -P ${RUN_AS_USER}:${RUN_AS_GROUP} ${WORK_DIR}
+
+# ensure the file can be executed
+chmod +x ${WORK_DIR}/app.js
+
+
+#copy the systemd service file over
+cp ${WORK_DIR}/env/snow-reporter.service /etc/systemd/system/
+
+echo "+ Setting up packages"
+# Install any new node packages
+npm install
+
+echo "+ Starting service"
+# Restart the node service 
+systemctl start snow-reporter.service
+echo "Done"
+

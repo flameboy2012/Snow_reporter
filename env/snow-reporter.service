@@ -3,7 +3,8 @@ Description=Snow Reporter
 After=network.target
 
 [Service]
-ExecStart=/var/www/snow-reporter/app.js
+EnvironmentFile=/var/www/snow-reporter/env/defaults
+ExecStart=/var/www/snow-reporter/app.js $CONFIG
 Restart=always
 User=nobody
 Group=nogroup
