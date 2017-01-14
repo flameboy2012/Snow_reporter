@@ -6,6 +6,7 @@ var Forecast = require("./models");
 
 function Bot(config) {
     this.config = config;
+    this.lastForecast = null;
 
     this.slack = new SlackBot({
         token: this.config.SlackToken,
@@ -28,6 +29,7 @@ function wakeUp() {
   var self = this;
   var forecast = self.lastForecast;
 
+  console.log("Getting new snow report");
   request("http://www.myweather2.com/developer/weather.ashx?uac=J8AGqmQdGv&uref=697ed4ad-377c-4122-84af-4fa0ddae8dac&output=json", function (err, res, body) {
     if (err)
       console.log(err);
@@ -36,13 +38,14 @@ function wakeUp() {
 
     if (forecast === null) {
       forecast = new Forecast(report.weather.snow_report[0]);
-      self.slack.postMessageToChannel("general", forecast.print(), params);
-    } else {
-      if (forecast.compare(report.weather.snow_report[0])) {
+    } else if (forecast.compare(report.weather.snow_report[0])) {
         forecast = new Forecast(report.weather.snow_report[0]);
-        self.slack.postMessageToChannel("general", forecast.print(), params);
-      }
+    } else {
+      console.log("No new forecast");
+      return;
     }
+    console.log("Posting updated forecast");
+    self.slack.postMessageToChannel("general", forecast.print(), self.config.SlackPostParams);
 
     self.lastForecast = forecast;
   });
@@ -50,18 +53,13 @@ function wakeUp() {
 
 Bot.prototype.startBot = function() {
   console.log("Starting internal slack bot");
-  console.log("%v", this);
-  console.log("%v", this.slack);
-
   var self = this; //you... YOU..
 
   this.slack.on("start", function() {
-    console.log("%v", this);
-    console.log("%v", self);
-    console.log("Sending hello message");
-    self.slack.postMessageToChannel("general", "Hello! Snow is back baby!", self.config.SlackParams);
+    self.slack.postMessageToChannel("general", "Hello! Snow is back baby!", self.config.SlackPostParams);
 
-    setInterval(() => wakeUp.call(self), self.config.ReportInterval);
+    console.log("Sleeping for %d", self.config.ReportInterval);
+    setInterval(wakeUp.call, self.config.ReportInterval, self);
   });
 };
 Bot.prototype.stopBot = function() {

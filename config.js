@@ -23,7 +23,7 @@ module.exports = {
     }
 
     if (!('ReportInterval' in config)) {
-      config.ReportInterval = 600;
+      config.ReportInterval = 600000;
     }
 
     if (!('SlackChannel' in config)) {

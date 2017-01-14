@@ -36,7 +36,7 @@ echo "+ Setting up packages"
 npm install
 
 echo "+ Starting service"
-# Restart the node service 
+# Restart the node service
 systemctl start snow-reporter.service
 echo "Done"
 
