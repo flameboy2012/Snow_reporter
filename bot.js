@@ -45,7 +45,7 @@ function wakeUp() {
       return;
     }
     console.log("Posting updated forecast");
-    self.slack.postMessageToChannel(self.config.SlackChannel, forecast.print(), self.config.SlackPostParams);
+    postMessage.call(self, forecast.print());
 
     self.lastForecast = forecast;
   });
@@ -58,9 +58,14 @@ function postMessage(message) {
 function handleMessage(data) {
   if (data.type != "desktop_notification")
     return;
-
+  console.log("Recieved message");
   if (data.content.toLowerCase().indexOf("weather") > -1) {
+    console.log("Printing weather report");
     postMessage.call(this, this.lastForecast.print());
+  }
+  if (data.content.toLowerCase().indexOf("memes") > -1) {
+    console.log("Shitposting");
+    postMessage.call(this, "/gif memes");
   }
 }
 
@@ -73,7 +78,7 @@ Bot.prototype.startBot = function() {
     self.slackId = self.slack.getUserId(self.config.Username);
     self.channelId = self.slack.getChannelId(self.config.SlackChannel);
 
-    self.slack.postMessageToChannel(self.config.SlackChannel, "Hello! Snow is back baby!", self.config.SlackPostParams);
+    postMessage.call(self, "Hello! Snow is back baby!");
 
     console.log("Sleeping for %d", self.config.ReportInterval);
     wakeUp.call(self);
