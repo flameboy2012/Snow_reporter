@@ -1,6 +1,7 @@
 
 var SlackBot = require("slackbots");
 var request = require("request");
+var node_schedule = require("node-schedule");
 var Forecast = require("./models");
 
 
@@ -31,8 +32,10 @@ function wakeUp() {
 
   console.log("Getting new snow report");
   request("http://www.myweather2.com/developer/weather.ashx?uac=J8AGqmQdGv&uref=697ed4ad-377c-4122-84af-4fa0ddae8dac&output=json", function (err, res, body) {
-    if (err)
+    if (err) {
       console.log(err);
+      return;
+    }
 
     var report = JSON.parse(body);
 
@@ -45,10 +48,14 @@ function wakeUp() {
       return;
     }
     console.log("Posting updated forecast");
-    postMessage.call(self, forecast.print());
+    postMessage.call(self, "Look what just got updated!\n" + forecast.print());
 
     self.lastForecast = forecast;
   });
+}
+
+function postPics(message) {
+  postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg");
 }
 
 function postMessage(message) {
@@ -67,6 +74,10 @@ function handleMessage(data) {
     console.log("Shitposting");
     postMessage.call(this, "/gif memes");
   }
+  if (data.content.toLowerCase().indexOf("pics") > -1) {
+    console.log("Get HYPE (posting pics)");
+    postMessage.call(this, "GET HYPE\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg");
+  }
 }
 
 Bot.prototype.startBot = function() {
@@ -82,7 +93,12 @@ Bot.prototype.startBot = function() {
 
     console.log("Sleeping for %d", self.config.ReportInterval);
     wakeUp.call(self);
-    setInterval(() => wakeUp.call(self), self.config.ReportInterval);
+
+    node_schedule.scheduleJob("0 45    09    * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
+    node_schedule.scheduleJob("0 00    13    * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));
+    node_schedule.scheduleJob("0 30    15    * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"));
+    //Every 10 min, 8 till 5, mon to fri
+    node_schedule.scheduleJob("0 */10  08-17 * *  1-5", () => wakeUp.call(self));
   });
 
 
