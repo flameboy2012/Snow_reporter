@@ -94,11 +94,11 @@ Bot.prototype.startBot = function() {
     console.log("Sleeping for %d", self.config.ReportInterval);
     wakeUp.call(self);
 
-    node_schedule.scheduleJob("0 45    09    * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
-    node_schedule.scheduleJob("0 00    13    * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));
-    node_schedule.scheduleJob("0 30    15    * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"));
+    node_schedule.scheduleJob("*  45   9   * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
+    node_schedule.scheduleJob("*   0  13   * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));
+    node_schedule.scheduleJob("*  30  15   * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"));
     //Every 10 min, 8 till 5, mon to fri
-    node_schedule.scheduleJob("0 */10  08-17 * *  1-5", () => wakeUp.call(self));
+    node_schedule.scheduleJob("* */10 8-17 * *  1-5", () => wakeUp.call(self));
   });
 
 
