@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cron": "^1.2.1",
+    "node-schedule": "^1.2.0",
     "request": "^2.79.0",
-    "slackbots": "^1.0.2",
-    "node-schedule": "^1.2.0"
+    "slackbots": "^1.0.2"
   }
 }
