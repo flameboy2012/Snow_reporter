@@ -102,11 +102,11 @@ Bot.prototype.startBot = function() {
     // node_schedule.scheduleJob("* */10 8-17 * *  1-5", () => wakeUp.call(self));
 
     self.jobs = {};
-    self.jobs.MorningCheck = new CronJob("* 45 9 * * 1-5", () => {postPics.call(self, "Goood morning! Time to get HYPE");}, null, true);
-    self.jobs.LunchCheck = new CronJob("* 0 13 * * 1-5", () => {postPics.call(self, "How's the day treating you hmm? Well, here's some snow!");}, null, true);
-    self.jobs.EveningCheck = new CronJob("* 30 15 * * 1-5", () => {postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!");}, null, true);
-
-    self.jobs.ReportCheck = new CronJob("* */10 8-17 * * 1-5",() => {wakeUp.call(self);}, null, true);
+    self.jobs.MorningCheck = new CronJob("0 45 9 * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"), null, true);
+    self.jobs.LunchCheck   = new CronJob("0 0 13 * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"), null, true);
+    self.jobs.EveningCheck = new CronJob("0 30 15 * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"), null, true);
+	// Every 10 min, 8 till 5, mon to fri
+	self.jobs.ReportCheck  = new CronJob("0 */10 8-17 * * 1-5",() => wakeUp.call(self), null, true);
   });
 
 
