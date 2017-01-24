@@ -1,19 +1,37 @@
 
+var fs = require("fs");
 var SlackBot = require("slackbots");
 var request = require("request");
-// var node_schedule = require("node-schedule");
 var CronJob = require('cron').CronJob;
 var Forecast = require("./models");
 
 
 function Bot(config) {
     this.config = config;
-    this.lastForecast = null;
+    this.lastForecast = getLastForecast.call(this);
 
     this.slack = new SlackBot({
         token: this.config.SlackToken,
         name: this.config.Name
     });
+}
+
+function setLastForecast(forecast) {
+  var forecastString = JSON.stringify(forecast);
+  fs.writeFile(this.config.LastForecastFile, forecastString, (err) => {
+    if (err) throw err;
+    console.log("Last forecast written to file.");
+  });
+}
+
+function getLastForecast() {
+  if (fs.existsSync(this.config.LastForecastFile)) {
+    console.log("Reading forecast file: %s", this.config.LastForecastFile);
+    return JSON.parse(fs.readFileSync(this.config.LastForecastFile, 'utf8'));
+  } else {
+    console.log("No last forecast file found.");
+    return null;
+  }
 }
 
 function sendHello() {
@@ -50,6 +68,7 @@ function wakeUp() {
     }
     console.log("Posting updated forecast");
     postMessage.call(self, "Look what just got updated!\n" + forecast.print());
+    setLastForecast.call(self, forecast.toJson());
 
     self.lastForecast = forecast;
   });
@@ -105,7 +124,7 @@ Bot.prototype.startBot = function() {
     self.jobs.MorningCheck = new CronJob("0 45 9 * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"), null, true);
     self.jobs.LunchCheck   = new CronJob("0 0 13 * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"), null, true);
     self.jobs.EveningCheck = new CronJob("0 30 15 * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"), null, true);
-	// Every 10 min, 8 till 5, mon to fri
+	// Every 10 min, 8 till 6, mon to fri
 	self.jobs.ReportCheck  = new CronJob("0 */10 8-17 * * 1-5",() => wakeUp.call(self), null, true);
   });
 

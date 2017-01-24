@@ -20,6 +20,16 @@ var Forecast = function (forecast) {
 		}
 		return false;
 	};
+
+	this.toJson = function () {
+		return {
+			conditions: this.conditions,
+			last_snow_date: this.last_snow_date,
+			lower_snow_depth: this.lower_snow_depth,
+			report_date: this.report_date,
+			upper_snow_depth: this.upper_snow_depth
+		};
+	};
 };
 
 module.exports = Forecast;

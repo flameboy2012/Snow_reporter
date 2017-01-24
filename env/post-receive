@@ -1,6 +1,7 @@
 #!/bin/sh
 
 WORK_DIR=/var/www/snow-reporter
+DATA_DIR=/var/lib/snow-reporter
 GIT_DIR=/var/repo/snow-reporter.git
 
 RUN_AS_USER=nobody
@@ -12,17 +13,23 @@ systemctl stop snow-reporter.service
 
 # copy over files
 
+echo "+ Copying files"
 if [ ! -d ${WORK_DIR} ]
 then
   mkdir -p ${WORK_DIR}
 fi
 
-echo "+ Copying files"
 git --work-tree=${WORK_DIR} --git-dir=${GIT_DIR} checkout -f
 
 echo "+ Configuring environment"
 cd ${WORK_DIR}
 chown -R -P ${RUN_AS_USER}:${RUN_AS_GROUP} ${WORK_DIR}
+
+if [ ! -d ${DATA_DIR} ]
+then
+  mkdir -p ${DATA_DIR}
+  chown -P ${RUN_AS_USER}:${RUN_AS_GROUP} ${DATA_DIR}
+fi
 
 # ensure the file can be executed
 chmod +x ${WORK_DIR}/app.js

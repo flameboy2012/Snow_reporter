@@ -38,6 +38,10 @@ module.exports = {
       config.SlackPostParams = default_params;
     }
 
+    if (!('LastForecastFile' in config)) {
+      config.LastForecastFile = '/var/lib/snow-reporter/last-forecast';
+    }
+
     return config;
   }
 };
