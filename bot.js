@@ -75,7 +75,8 @@ function wakeUp() {
 }
 
 function postPics(message) {
-  postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg");
+  var now = new Date();
+  postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg?" + now);
 }
 
 function postMessage(message) {
@@ -96,7 +97,7 @@ function handleMessage(data) {
   }
   if (data.content.toLowerCase().indexOf("pics") > -1) {
     console.log("Get HYPE (posting pics)");
-    postMessage.call(this, "GET HYPE\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg");
+    postPics.call(this, "GET HYPE");
   }
 }
 
