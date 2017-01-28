@@ -34,7 +34,7 @@ function setLastForecast(forecast) {
 function getLastForecast() {
   if (fs.existsSync(this.config.LastForecastFile)) {
     console.log("Reading forecast file: %s", this.config.LastForecastFile);
-    return JSON.parse(fs.readFileSync(this.config.LastForecastFile, 'utf8'));
+    return new Forecast(JSON.parse(fs.readFileSync(this.config.LastForecastFile, 'utf8')));
   } else {
     console.log("No last forecast file found.");
     return null;
