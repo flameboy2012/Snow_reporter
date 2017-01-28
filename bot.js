@@ -57,7 +57,7 @@ function wakeUp() {
   var forecast = self.lastForecast;
 
   console.log("Getting new snow report");
-  request(self.config.reportUrl, function (err, res, body) {
+  request(self.config.ReportUrl, function (err, res, body) {
     if (err) {
       console.log(err);
       return;
@@ -74,7 +74,7 @@ function wakeUp() {
       return;
     }
     console.log("Posting updated forecast");
-    postMessage.call(self, "Look what just got updated!\n" + forecast.print());
+    self.postMessage("Look what just got updated!\n" + forecast.print());
     setLastForecast.call(self, forecast.toJson());
 
     self.lastForecast = forecast;
@@ -87,15 +87,15 @@ function handleMessage(data) {
   console.log("Recieved message");
   if (data.content.toLowerCase().indexOf("weather") > -1) {
     console.log("Printing weather report");
-    postMessage.call(this, this.lastForecast.print());
+    this.postMessage(this.lastForecast.print());
   }
   if (data.content.toLowerCase().indexOf("memes") > -1) {
     console.log("Shitposting");
-    postMessage.call(this, "/gif memes");
+    this.postMessage("/gif memes");
   }
   if (data.content.toLowerCase().indexOf("pics") > -1) {
     console.log("Get HYPE (posting pics)");
-    postPics.call(this, "GET HYPE");
+    this.postPics("GET HYPE", null);
   }
 }
 
@@ -113,12 +113,20 @@ Bot.prototype.registerJob = function(identifier, jobCronString, task) {
 
 Bot.prototype.postPics = function(message, image) {
 
-  if (image === null || image === undefined)
+  if (image === null || image === undefined) {
+    console.log("Selecting random image");
     image = this.config.getRandomImage();
+  }
+  console.log("Posting pic %s", image);
   var now = util.format('%s', new Date());
-  postMessage.call(this,
-    util.format("%s\n%s?%s",
-                message, imageUrl, now.substring(now.length - 5)));
+  this.postMessage(
+    util.format(
+      "%s\n%s?%s",
+      message,
+      image,
+      now.substring(now.length - 5)
+    )
+  );
   //postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg" + now);
 };
 
@@ -145,7 +153,7 @@ Bot.prototype.startBot = function() {
     console.log("Sleeping for %d", self.config.ReportInterval);
     wakeUp.call(self);
 
-    this.connected = true;
+    self.connected = true;
 
     // node_schedule.scheduleJob("*  45   9   * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
     // node_schedule.scheduleJob("*   0  13   * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));

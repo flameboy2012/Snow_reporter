@@ -55,7 +55,7 @@ module.exports = {
     }
 
     config.getRandomImage = function() {
-      return images[(Math.random() * 100) % images.length];
+      return images[(Math.random() * 100).toFixed(0) % images.length];
     };
 
     return config;
