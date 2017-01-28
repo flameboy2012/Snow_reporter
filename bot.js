@@ -1,5 +1,6 @@
 
 var fs = require("fs");
+var util = require("util");
 var SlackBot = require("slackbots");
 var request = require("request");
 var CronJob = require('cron').CronJob;
@@ -10,10 +11,16 @@ function Bot(config) {
     this.config = config;
     this.lastForecast = getLastForecast.call(this);
 
+    this.jobs = {};
+
+    this.connected = false;
+
     this.slack = new SlackBot({
         token: this.config.SlackToken,
         name: this.config.Name
     });
+
+    this.registerJob("DataCheck", "0 */10 8-17 * * 1-5", () => wakeUp.call(self));
 }
 
 function setLastForecast(forecast) {
@@ -36,7 +43,7 @@ function getLastForecast() {
 
 function sendHello() {
 
-  this.slack.postMessageToChannel("general", "Hello! Snow is back baby!", this.config.SlackParams);
+  this.postMessage("Hello! Snow is back baby!");
 
 }
 
@@ -50,7 +57,7 @@ function wakeUp() {
   var forecast = self.lastForecast;
 
   console.log("Getting new snow report");
-  request("http://www.myweather2.com/developer/weather.ashx?uac=J8AGqmQdGv&uref=697ed4ad-377c-4122-84af-4fa0ddae8dac&output=json", function (err, res, body) {
+  request(self.config.reportUrl, function (err, res, body) {
     if (err) {
       console.log(err);
       return;
@@ -74,15 +81,6 @@ function wakeUp() {
   });
 }
 
-function postPics(message) {
-  var now = new Date();
-  postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg?" + now);
-}
-
-function postMessage(message) {
-  this.slack.postMessageToChannel(this.config.SlackChannel, message, this.config.SlackPostParams);
-}
-
 function handleMessage(data) {
   if (data.type != "desktop_notification")
     return;
@@ -101,6 +99,38 @@ function handleMessage(data) {
   }
 }
 
+Bot.prototype.registerJob = function(identifier, jobCronString, task) {
+
+  if (identifier in this.jobs) {
+    console.log("Stopping current '%s' job", identifier);
+    this.jobs[identifier].stop();
+  }
+
+  console.log("Adding job '%s'", identifier);
+  var job = new CronJob(jobCronString, task, null, true);
+  this.jobs[identifier] = job;
+};
+
+Bot.prototype.postPics = function(message, image) {
+
+  if (image === null || image === undefined)
+    image = this.config.getRandomImage();
+  var now = util.format('%s', new Date());
+  postMessage.call(this,
+    util.format("%s\n%s?%s",
+                message, imageUrl, now.substring(now.length - 5)));
+  //postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg" + now);
+};
+
+Bot.prototype.postMessage = function(message) {
+
+  if (!this.connected) {
+    console.log("Not connected to slack, not posting message");
+    return;
+  }
+  this.slack.postMessageToChannel(this.config.SlackChannel, message, this.config.SlackPostParams);
+};
+
 Bot.prototype.startBot = function() {
   console.log("Starting internal slack bot");
   var self = this; //you... YOU..
@@ -110,23 +140,18 @@ Bot.prototype.startBot = function() {
     self.slackId = self.slack.getUserId(self.config.Username);
     self.channelId = self.slack.getChannelId(self.config.SlackChannel);
 
-    postMessage.call(self, "Hello! Snow is back baby!");
+    self.postMessage("Hello! Snow is back baby!");
 
     console.log("Sleeping for %d", self.config.ReportInterval);
     wakeUp.call(self);
+
+    this.connected = true;
 
     // node_schedule.scheduleJob("*  45   9   * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
     // node_schedule.scheduleJob("*   0  13   * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));
     // node_schedule.scheduleJob("*  30  15   * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"));
     // //Every 10 min, 8 till 5, mon to fri
     // node_schedule.scheduleJob("* */10 8-17 * *  1-5", () => wakeUp.call(self));
-
-    self.jobs = {};
-    self.jobs.MorningCheck = new CronJob("0 45 9 * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"), null, true);
-    self.jobs.LunchCheck   = new CronJob("0 0 13 * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"), null, true);
-    self.jobs.EveningCheck = new CronJob("0 30 15 * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"), null, true);
-	// Every 10 min, 8 till 6, mon to fri
-	self.jobs.ReportCheck  = new CronJob("0 */10 8-17 * * 1-5",() => wakeUp.call(self), null, true);
   });
 
 
