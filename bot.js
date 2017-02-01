@@ -118,7 +118,7 @@ Bot.prototype.postPics = function(message, image) {
     image = this.config.getRandomImage();
   }
   console.log("Posting pic %s", image);
-  var now = util.format('%s', new Date());
+  var now = util.format('%s', new Date().getTime());
   this.postMessage(
     util.format(
       "%s\n%s?%s",
