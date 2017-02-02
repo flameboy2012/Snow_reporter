@@ -20,7 +20,7 @@ function Bot(config) {
         name: this.config.Name
     });
 
-    this.registerJob("DataCheck", "0 */10 8-17 * * 1-5", () => wakeUp.call(self));
+    this.registerJob("DataCheck", "0 */10 8-17 * * 1-5", () => wakeUp.call(this));
 }
 
 function setLastForecast(forecast) {
@@ -43,7 +43,8 @@ function getLastForecast() {
 
 function sendHello() {
 
-  this.postMessage("Hello! Snow is back baby!");
+  this.postMessage(util.format("Hello! Snow is back baby! (Hash: %s)",
+    this.config.headCommitHash.substring(0,5)));
 
 }
 
@@ -127,7 +128,6 @@ Bot.prototype.postPics = function(message, image) {
       now.substring(now.length - 5)
     )
   );
-  //postMessage.call(this, message + "\nhttps://static1.merinet.com/image_uploader/webcam/large/meribel-panoramic-webcam.jpg" + now);
 };
 
 Bot.prototype.postMessage = function(message) {
@@ -151,15 +151,12 @@ Bot.prototype.startBot = function() {
     self.postMessage("Hello! Snow is back baby!");
 
     console.log("Sleeping for %d", self.config.ReportInterval);
-    wakeUp.call(self);
 
     self.connected = true;
 
-    // node_schedule.scheduleJob("*  45   9   * * 1-5", () => postPics.call(self, "Goood morning! Time to get HYPE"));
-    // node_schedule.scheduleJob("*   0  13   * * 1-5", () => postPics.call(self, "How's the day treating you hmm? Well, here's some snow!"));
-    // node_schedule.scheduleJob("*  30  15   * * 1-5", () => postPics.call(self, "Another day almost done till the HYPE train 'toot toots'!"));
-    // //Every 10 min, 8 till 5, mon to fri
-    // node_schedule.scheduleJob("* */10 8-17 * *  1-5", () => wakeUp.call(self));
+    sendHello.call(self);
+    wakeUp.call(self);
+
   });
 
 

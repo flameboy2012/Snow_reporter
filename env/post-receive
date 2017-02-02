@@ -21,6 +21,8 @@ fi
 
 git --work-tree=${WORK_DIR} --git-dir=${GIT_DIR} checkout -f
 
+git --git-dir=${GIT_DIR} rev-parse HEAD > ${WORK_DIR}/.HEAD
+
 echo "+ Configuring environment"
 cd ${WORK_DIR}
 chown -R -P ${RUN_AS_USER}:${RUN_AS_GROUP} ${WORK_DIR}

@@ -13,6 +13,12 @@ var images = [
   'https://static1.merinet.com/image_uploader/webcam/large/meribel-la-chaudanne-meeting-area-cam.jpg'
 ];
 
+parseCommitHash = function() {
+  if (fs.existsSync('.HEAD'))
+    return fs.readFileSync('.HEAD');
+  return '?????';
+};
+
 module.exports = {
   readConfig(configFile) {
 
@@ -57,6 +63,8 @@ module.exports = {
     config.getRandomImage = function() {
       return images[(Math.random() * 100).toFixed(0) % images.length];
     };
+
+    config.headCommitHash = parseCommitHash();
 
     return config;
   }
