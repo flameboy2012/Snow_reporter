@@ -1,5 +1,6 @@
 
 var fs = require("fs");
+var util = require("util");
 
 var default_params = {
   icon_emoji: ':snowman:'
@@ -15,7 +16,7 @@ var images = [
 
 parseCommitHash = function() {
   if (fs.existsSync('.HEAD'))
-    return fs.readFileSync('.HEAD');
+    return util.format('%s', fs.readFileSync('.HEAD'));
   return '?????';
 };
 
@@ -64,7 +65,7 @@ module.exports = {
       return images[(Math.random() * 100).toFixed(0) % images.length];
     };
 
-    config.headCommitHash = parseCommitHash();
+    config.HeadCommitHash = parseCommitHash();
 
     return config;
   }

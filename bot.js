@@ -44,7 +44,7 @@ function getLastForecast() {
 function sendHello() {
 
   this.postMessage(util.format("Hello! Snow is back baby! (Hash: %s)",
-    this.config.headCommitHash.substring(0,5)));
+    this.config.HeadCommitHash.substring(0,5)));
 
 }
 
